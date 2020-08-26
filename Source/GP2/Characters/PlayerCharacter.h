@@ -15,6 +15,8 @@ class GP2_API APlayerCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
+	UFUNCTION(BlueprintPure)
+		TimeState GetCurrentState() { return dayNightComponent->GetState(); }
 	UFUNCTION(Blueprintcallable)
 		void ChangeTimeOfDay(bool toggle, TimeState state);
 	UDayNightController* GetTimeController() { return dayNightComponent; }

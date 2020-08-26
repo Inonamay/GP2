@@ -22,6 +22,7 @@ public:
 	void ToggleDayNight();
 	void SetTime(TimeState _state);
 	void UpdateTriggerComponents();
+	TimeState GetState() { return state; }
 protected:
 private:
 	TimeState state;
