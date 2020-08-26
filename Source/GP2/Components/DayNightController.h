@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "DayNightController.generated.h"
-
-
+class UDayNightTriggerComponent;
+UENUM()
+enum TimeState {
+	Day, Night
+};
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GP2_API UDayNightController : public UActorComponent
 {
@@ -15,14 +18,15 @@ class GP2_API UDayNightController : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UDayNightController();
-
+	void AddTriggerComponent(UDayNightTriggerComponent* triggerToAdd);
+	void ToggleDayNight();
+	void SetTime(TimeState _state);
+	void UpdateTriggerComponents();
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
+private:
+	TimeState state;
+	TArray<UDayNightTriggerComponent*> triggers;
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 		
 };
