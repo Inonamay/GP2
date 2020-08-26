@@ -3,12 +3,24 @@
 
 #include "PlayerCharacter.h"
 
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	if (!dayNightComponent)
+		dayNightComponent = CreateDefaultSubobject<UDayNightController>("DayNightController");
 
+}
+void APlayerCharacter::ChangeTimeOfDay(bool toggle, TimeState state)
+{
+	if (toggle) {
+		dayNightComponent->ToggleDayNight();
+	}
+	else {
+		dayNightComponent->SetTime(state);
+	}
 }
 
 // Called when the game starts or when spawned

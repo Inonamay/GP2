@@ -4,17 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "../Components/DayNightController.h"
 #include "PlayerCharacter.generated.h"
-
 UCLASS()
 class GP2_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
+	UPROPERTY(VisibleDefaultsOnly, Category = Components)
+	UDayNightController* dayNightComponent;
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
-
+	UFUNCTION(BlueprintPure)
+		TimeState GetCurrentState() { return dayNightComponent->GetState(); }
+	UFUNCTION(Blueprintcallable)
+		void ChangeTimeOfDay(bool toggle, TimeState state);
+	UDayNightController* GetTimeController() { return dayNightComponent; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
