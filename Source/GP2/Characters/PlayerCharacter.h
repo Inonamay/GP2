@@ -22,11 +22,14 @@ public:
 		void ChangeTimeOfDay(bool toggle, TimeState state);
 	UFUNCTION(BlueprintPure)
 	UDayNightController* GetTimeController() { return dayNightComponent; }
+	
+	
 	UFUNCTION(Blueprintpure)
 		int GetActionPoints() { return currentActionPoints; }
-    bool ChangeActionPoints(int amount);
 	UFUNCTION(Blueprintcallable)
-		void ReplenishActionPoints() { currentActionPoints = maxActionPoints; }
+    bool DoAction(int pointsCost);
+	UFUNCTION(Blueprintcallable)
+		void ReplenishActionPoints(int amount);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

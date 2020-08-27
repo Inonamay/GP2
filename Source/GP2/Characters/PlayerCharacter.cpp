@@ -23,15 +23,23 @@ void APlayerCharacter::ChangeTimeOfDay(bool toggle, TimeState state)
 	}
 }
 
-bool APlayerCharacter::ChangeActionPoints(int amount)
+bool APlayerCharacter::DoAction(int pointsCost)
 {
-	if (currentActionPoints + amount < 0) {
+	if (currentActionPoints - pointsCost < 0) {
 		return false;
 	}
-	int clamped = FMath::Clamp(currentActionPoints + amount, 0, maxActionPoints);
+	int clamped = FMath::Clamp(currentActionPoints - pointsCost, 0, maxActionPoints);
 	onPointChange.Broadcast(currentActionPoints, clamped);
 	currentActionPoints = clamped;
 	return true;
+}
+
+void APlayerCharacter::ReplenishActionPoints(int amount)
+{
+	currentActionPoints += amount;
+	if (currentActionPoints > maxActionPoints) {
+		currentActionPoints = maxActionPoints;
+	}
 }
 
 // Called when the game starts or when spawned
