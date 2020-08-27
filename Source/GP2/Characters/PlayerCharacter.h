@@ -7,6 +7,7 @@
 #include "../Components/DayNightController.h"
 #include "PlayerCharacter.generated.h"
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActionPointChange, int, previousActionpoints, int, currentActionpoints);
+class UWalkableComponent;
 UCLASS()
 class GP2_API APlayerCharacter : public ACharacter
 {
@@ -16,14 +17,18 @@ class GP2_API APlayerCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pathfinding")
+		UWalkableComponent* currentTile;
 	UFUNCTION(BlueprintPure)
 		TimeState GetCurrentState() { return dayNightComponent->GetState(); }
 	UFUNCTION(Blueprintcallable)
 		void ChangeTimeOfDay(bool toggle, TimeState state);
 	UFUNCTION(BlueprintPure)
 	UDayNightController* GetTimeController() { return dayNightComponent; }
-	
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pathfinding")
+		bool codeClickToMove = false;
+	UFUNCTION(Blueprintcallable)
+		void MoveToMapLocation(UWalkableComponent* location);
 	UFUNCTION(Blueprintpure)
 		int GetActionPoints() { return currentActionPoints; }
 	UFUNCTION(Blueprintcallable)
@@ -39,6 +44,8 @@ protected:
 		int currentActionPoints = 11;
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 		FOnActionPointChange onPointChange;
+	void CheckForWalkable();
+	UInputComponent* inputComponent;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
