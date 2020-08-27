@@ -62,7 +62,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (codeClickToMove) {
-		PlayerInputComponent->BindKey(EKeys::RightMouseButton, IE_Pressed, this, &APlayerCharacter::CheckForWalkable);
+		PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &APlayerCharacter::CheckForWalkable);
 	}
 	
 	inputComponent = PlayerInputComponent;
@@ -95,6 +95,9 @@ void APlayerCharacter::CheckForWalkable()
 	if (HitRes.Actor.IsValid()) {
 		UWalkableComponent* walkable = HitRes.GetActor()->FindComponentByClass<UWalkableComponent>();
 		if (walkable) {
+			if (walkable->blocked) {
+				return;
+			}
 			MoveToMapLocation(walkable);
 		}
 	}
