@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "DayNightController.h"
 #include "DayNightTriggerComponent.generated.h"
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnChangeTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangeTime, int, time);
 class APlayerCharacter;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GP2_API UDayNightTriggerComponent : public UActorComponent
