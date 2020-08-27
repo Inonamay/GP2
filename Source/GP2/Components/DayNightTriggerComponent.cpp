@@ -12,10 +12,10 @@ UDayNightTriggerComponent::UDayNightTriggerComponent()
 APlayerCharacter* UDayNightTriggerComponent::player;
 void UDayNightTriggerComponent::ChangeTime(TimeState state) {
 	if (state == Day) {
-		onDay.Broadcast();
+		onDay.Broadcast(0);
 	}
 	else {
-		onNight.Broadcast();
+		onNight.Broadcast(1);
 	}
 }
 void UDayNightTriggerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)

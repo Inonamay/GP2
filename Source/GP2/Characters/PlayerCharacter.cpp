@@ -2,7 +2,7 @@
 
 
 #include "PlayerCharacter.h"
-
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -21,6 +21,17 @@ void APlayerCharacter::ChangeTimeOfDay(bool toggle, TimeState state)
 	else {
 		dayNightComponent->SetTime(state);
 	}
+}
+
+bool APlayerCharacter::ChangeActionPoints(int amount)
+{
+	if (currentActionPoints + amount < 0) {
+		return false;
+	}
+	int clamped = FMath::Clamp(currentActionPoints + amount, 0, maxActionPoints);
+	onPointChange.Broadcast(currentActionPoints, clamped);
+	currentActionPoints = clamped;
+	return true;
 }
 
 // Called when the game starts or when spawned
