@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "DayNightController.generated.h"
 class UDayNightTriggerComponent;
-UENUM()
+UENUM(Blueprinttype)
 enum TimeState {
 	Day, Night
 };
