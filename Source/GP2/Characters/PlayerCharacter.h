@@ -19,6 +19,7 @@ public:
 		TimeState GetCurrentState() { return dayNightComponent->GetState(); }
 	UFUNCTION(Blueprintcallable)
 		void ChangeTimeOfDay(bool toggle, TimeState state);
+	UFUNCTION(BlueprintPure)
 	UDayNightController* GetTimeController() { return dayNightComponent; }
 protected:
 	// Called when the game starts or when spawned
