@@ -20,8 +20,10 @@ public:
 	UDayNightController();
 	void AddTriggerComponent(UDayNightTriggerComponent* triggerToAdd);
 	void ToggleDayNight();
+	UFUNCTION(Blueprintcallable)
 	void SetTime(TimeState _state);
 	void UpdateTriggerComponents();
+	UFUNCTION(Blueprintpure)
 	TimeState GetState() { return state; }
 protected:
 private:
