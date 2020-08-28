@@ -50,6 +50,14 @@ void APlayerCharacter::MoveToMapLocation(TArray<UWalkableComponent*> path)
 	
 }
 
+void APlayerCharacter::MoveToPath(AActor* actor)
+{
+	UWalkableComponent* walkable = actor->FindComponentByClass<UWalkableComponent>();
+	if (walkable) {
+		currentTile = walkable;
+	}
+}
+
 bool APlayerCharacter::DoAction(int pointsCost)
 {
 	if (currentActionPoints - pointsCost < 0) {
