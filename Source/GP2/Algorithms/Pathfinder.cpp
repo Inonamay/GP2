@@ -29,7 +29,6 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
             if (searchNode == end)
             {
                 foundGoal = true;
-                break;
             }
             if (!searchNode->blocked && !searched.Contains(searchNode))
             {
