@@ -20,10 +20,6 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
     int loops = 0;
     while (!foundGoal)
     {
-        loops++;
-        if (loops > 200) {
-            return TArray<UWalkableComponent*>();
-        }
         for (size_t i = 0; i < currentNode->currentPosition->connectedWalkables.Num(); i++)
         {
             if (currentNode->stepsTaken > actionPoints) {
@@ -57,6 +53,7 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
             if (searchList.Num() > 0)
             {
                 currentNode = searchList[0];
+                searchList.RemoveAt(0);
 
             }
             else
