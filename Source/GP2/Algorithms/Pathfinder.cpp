@@ -17,9 +17,13 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
     TArray<UWalkableComponent*> searched;
     TArray<Node*> searchList;
     bool foundGoal = false;
+    int loops = 0;
     while (!foundGoal)
     {
-       
+        loops++;
+        if (loops > 200) {
+            return TArray<UWalkableComponent*>();
+        }
         for (size_t i = 0; i < currentNode->currentPosition->connectedWalkables.Num(); i++)
         {
             if (currentNode->stepsTaken > actionPoints) {
