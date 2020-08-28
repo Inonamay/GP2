@@ -37,6 +37,7 @@ void APlayerCharacter::MoveToMapLocation(TArray<UWalkableComponent*> path)
 	}
 	if (moveAutomaticly) {
 		this->SetActorLocation(path[path.Num() - 1]->GetOwner()->GetActorLocation());
+		DoAction(Pathfinder::actionPointsSpentLast);
 	}
 	else {
 		TArray<AActor*> actorPath;
@@ -44,7 +45,7 @@ void APlayerCharacter::MoveToMapLocation(TArray<UWalkableComponent*> path)
 		{
 			actorPath.Add(path[i]->GetOwner());
 		}
-		onFoundPath.Broadcast(actorPath);
+		onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
 	}
 	
 }
@@ -122,7 +123,7 @@ void APlayerCharacter::CheckForWalkable()
 				return;
 			}
 			if (currentTile) {
-				MoveToMapLocation(Pathfinder::FindPath(currentTile, walkable));
+				MoveToMapLocation(Pathfinder::FindPath(currentTile, walkable, currentActionPoints));
 			}
 			else {
 				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("There is no current tile"));

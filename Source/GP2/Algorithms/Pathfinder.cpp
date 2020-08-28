@@ -7,9 +7,9 @@
 Pathfinder::Pathfinder()
 {
 }
+int Pathfinder::actionPointsSpentLast;
 
-
-TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWalkableComponent* end)
+TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWalkableComponent* end, int actionPoints)
 {
     Node* currentNode = new Node();
     currentNode->stepsTaken = 0;
@@ -19,8 +19,12 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
     bool foundGoal = false;
     while (!foundGoal)
     {
+       
         for (size_t i = 0; i < currentNode->currentPosition->connectedWalkables.Num(); i++)
         {
+            if (currentNode->stepsTaken > actionPoints) {
+                continue;
+            }
             UWalkableComponent* searchNode = currentNode->currentPosition->connectedWalkables[i];
             if (searchNode == end)
             {
@@ -34,7 +38,7 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
                 }
                     
                 Node* node = new Node();
-                node->stepsTaken = currentNode->stepsTaken + 1;
+                node->stepsTaken = currentNode->stepsTaken + searchNode->Cost();
                 node->currentPosition = searchNode;
                 node->previous = currentNode;
                 searchList.Add(node);
@@ -58,6 +62,7 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
         }
     }
     Node* backwardsWalk = currentNode;
+    actionPointsSpentLast = currentNode->stepsTaken;
     searched.Empty();
     while (backwardsWalk->currentPosition != start)
     {

@@ -12,7 +12,7 @@ enum ActionError {
 };
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActionPointChange, int, previousActionpoints, int, currentActionpoints);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionError, ActionError, errorType);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPathFound, TArray<AActor*>, path);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPathFound, TArray<AActor*>, path, int, actionPointCost);
 
 class UWalkableComponent;
 UCLASS()

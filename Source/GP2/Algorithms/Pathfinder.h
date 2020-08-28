@@ -20,6 +20,7 @@ class GP2_API Pathfinder
 
 public:
 	Pathfinder();
-	static TArray<UWalkableComponent*> FindPath(UWalkableComponent* start, UWalkableComponent* end);
+	static TArray<UWalkableComponent*> FindPath(UWalkableComponent* start, UWalkableComponent* end, int actionPoints);
+	static int actionPointsSpentLast;
 	~Pathfinder();
 };
