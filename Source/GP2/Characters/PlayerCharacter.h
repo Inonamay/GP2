@@ -37,7 +37,7 @@ public:
 		bool codeClickToMove = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pathfinding")
 		bool moveAutomaticly = false;
-		void MoveToMapLocation(TArray<UWalkableComponent*> location);
+		
 		UFUNCTION(Blueprintcallable)
 			void MoveToPath(AActor* actor);
 	UFUNCTION(Blueprintpure)
@@ -46,8 +46,13 @@ public:
     bool DoAction(int pointsCost);
 	UFUNCTION(Blueprintcallable)
 		void ReplenishActionPoints(int amount);
+	
+	
+	
+	
+	void MoveToMapLocation(TArray<UWalkableComponent*> location);
 	UFUNCTION(Blueprintcallable)
-		void CheckForWalkable();
+		void GeneratePathToCurrentClickable();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
