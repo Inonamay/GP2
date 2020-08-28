@@ -14,7 +14,17 @@ UWalkableComponent::UWalkableComponent()
 void UWalkableComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	for (size_t i = 0; i < connectedWalkableActors.Num(); i++)
+	{
+		UWalkableComponent* walkable = connectedWalkableActors[i]->FindComponentByClass<UWalkableComponent>();
+		if (walkable) {
+			if (!connectedWalkables.Contains(walkable)) {
+				connectedWalkables.Add(walkable);
+			}
+			
+		}
+	}
+	
 	// ...
 	
 }
