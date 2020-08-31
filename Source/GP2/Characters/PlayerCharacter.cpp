@@ -29,25 +29,14 @@ void APlayerCharacter::ChangeTimeOfDay(bool toggle, TimeState state)
 	}
 }
 
-void APlayerCharacter::MoveToMapLocation(TArray<UWalkableComponent*> path)
+
+
+void APlayerCharacter::MoveToPath(AActor* actor)
 {
-	if (path.Num() == 0) {
-		actionFailed.Broadcast(NoPath);
-		return;
+	UWalkableComponent* walkable = actor->FindComponentByClass<UWalkableComponent>();
+	if (walkable) {
+		currentTile = walkable;
 	}
-	if (moveAutomaticly) {
-		this->SetActorLocation(path[path.Num() - 1]->GetOwner()->GetActorLocation());
-		DoAction(Pathfinder::actionPointsSpentLast);
-	}
-	else {
-		TArray<AActor*> actorPath;
-		for (size_t i = 0; i < path.Num(); i++)
-		{
-			actorPath.Add(path[i]->GetOwner());
-		}
-		onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
-	}
-	
 }
 
 bool APlayerCharacter::DoAction(int pointsCost)
@@ -101,13 +90,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (codeClickToMove) {
-		PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &APlayerCharacter::CheckForWalkable);
+		PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &APlayerCharacter::GeneratePathToCurrentClickable);
 	}
 	
 	inputComponent = PlayerInputComponent;
 
 }
-void APlayerCharacter::CheckForWalkable()
+void APlayerCharacter::GeneratePathToCurrentClickable()
 {
 	FHitResult HitRes;
 	APlayerController* input = UGameplayStatics::GetPlayerController(this, 0);
@@ -119,11 +108,19 @@ void APlayerCharacter::CheckForWalkable()
 		UWalkableComponent* walkable = HitRes.GetActor()->FindComponentByClass<UWalkableComponent>();
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Hit: " + HitRes.GetActor()->GetFName().ToString()));
 		if (walkable) {
-			if (walkable->blocked) {
-				return;
-			}
+			
 			if (currentTile) {
-				MoveToMapLocation(Pathfinder::FindPath(currentTile, walkable, currentActionPoints));
+				TArray<UWalkableComponent*> path = Pathfinder::FindPath(currentTile, walkable, currentActionPoints);
+				TArray<AActor*> actorPath;
+				for (size_t i = 0; i < path.Num(); i++)
+				{
+					actorPath.Add(path[i]->GetOwner());
+				}
+				if (path.Num() == 0) {
+					actionFailed.Broadcast(NoPath);
+					return;
+				}
+				onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
 			}
 			else {
 				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("There is no current tile"));
@@ -131,6 +128,26 @@ void APlayerCharacter::CheckForWalkable()
 			
 		}
 	}
+}
+void APlayerCharacter::MoveToMapLocation(TArray<UWalkableComponent*> path)
+{
+	if (path.Num() == 0) {
+		actionFailed.Broadcast(NoPath);
+		return;
+	}
+	if (moveAutomaticly) {
+		this->SetActorLocation(path[path.Num() - 1]->GetOwner()->GetActorLocation());
+		DoAction(Pathfinder::actionPointsSpentLast);
+	}
+	else {
+		TArray<AActor*> actorPath;
+		for (size_t i = 0; i < path.Num(); i++)
+		{
+			actorPath.Add(path[i]->GetOwner());
+		}
+		onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
+	}
+
 }
 
 // Called every frame

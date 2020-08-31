@@ -1,4 +1,4 @@
-Binaries
+
 DerivedDataCache
 Intermediate
 Saved
@@ -12,3 +12,12 @@ Saved
 *.suo
 *.xcodeproj
 *.xcworkspace
+Binaries/Win64/GP2Editor.target
+Binaries/Win64/UE4Editor-GP2-0001.pdb
+Binaries/Win64/UE4Editor-GP2-0002.dll
+Binaries/Win64/UE4Editor.modules
+Binaries/Win64/UE4Editor-GP2-0093.pdb
+Binaries/Win64/UE4Editor-GP2-0093.dll
+Binaries/Win64/UE4Editor-GP2-0004.pdb
+Binaries/Win64/UE4Editor-GP2-0004.dll
+Binaries/Win64/UE4Editor-GP2-0002.pdb

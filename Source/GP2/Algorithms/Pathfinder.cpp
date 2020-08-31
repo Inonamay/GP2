@@ -16,24 +16,26 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
     currentNode->currentPosition = start;
     TArray<UWalkableComponent*> searched;
     TArray<Node*> searchList;
+    TArray<Node*> blockedPath;
     bool foundGoal = false;
     while (!foundGoal)
     {
-       
         for (size_t i = 0; i < currentNode->currentPosition->connectedWalkables.Num(); i++)
         {
             if (currentNode->stepsTaken > actionPoints) {
+                if (!blockedPath.Contains(currentNode)) {
+                    blockedPath.Add(currentNode);
+                }
                 continue;
             }
             UWalkableComponent* searchNode = currentNode->currentPosition->connectedWalkables[i];
             if (searchNode == end)
             {
                 foundGoal = true;
-                break;
             }
-            if (!searchNode->blocked && !searched.Contains(searchNode))
+            if (!searched.Contains(searchNode))
             {
-                if (searched.Contains(currentNode->currentPosition)) {
+                if (!searched.Contains(currentNode->currentPosition)) {
                     searched.Add(currentNode->currentPosition);
                 }
                     
@@ -41,7 +43,13 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
                 node->stepsTaken = currentNode->stepsTaken + searchNode->Cost();
                 node->currentPosition = searchNode;
                 node->previous = currentNode;
-                searchList.Add(node);
+                if (searchNode->blocked) {
+                    blockedPath.Add(node);
+                }
+                else {
+                    searchList.Add(node);
+                }
+               
                 if (foundGoal)
                 {
                     currentNode = node;
@@ -53,11 +61,31 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
             if (searchList.Num() > 0)
             {
                 currentNode = searchList[0];
+                searchList.RemoveAt(0);
 
             }
             else
             {
-                return TArray<UWalkableComponent*>();
+                if (blockedPath.Num() > 0) {
+                    int closest = 0;
+                    FVector endPoint = end->GetOwner()->GetActorLocation();
+                    float closestDist = FVector::Dist(endPoint, blockedPath[0]->currentPosition->GetOwner()->GetActorLocation());
+                    for (size_t i = 0; i < blockedPath.Num(); i++)
+                    {
+                        float temp = FVector::Dist(endPoint, blockedPath[i]->currentPosition->GetOwner()->GetActorLocation());
+                        if (temp < closestDist) {
+                            closestDist = temp;
+                            closest = i;
+                        }
+                        
+                    }
+                    currentNode = blockedPath[closest];
+                    foundGoal = true;
+                }
+                else {
+                    return TArray<UWalkableComponent*>();
+                }
+                
             }
         }
     }
