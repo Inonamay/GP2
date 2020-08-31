@@ -6,7 +6,14 @@
 #include "GameFramework/Character.h"
 #include "../Components/DayNightController.h"
 #include "PlayerCharacter.generated.h"
+UENUM(Blueprinttype)
+enum ActionError {
+	NoPath, NotEnoughPoints
+};
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActionPointChange, int, previousActionpoints, int, currentActionpoints);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionError, ActionError, errorType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPathFound, const TArray<AActor*>&, path, int, actionPointCost);
+
 class UWalkableComponent;
 UCLASS()
 class GP2_API APlayerCharacter : public ACharacter
@@ -18,6 +25,7 @@ public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pathfinding")
+		AActor* startingTile;
 		UWalkableComponent* currentTile;
 	UFUNCTION(BlueprintPure)
 		TimeState GetCurrentState() { return dayNightComponent->GetState(); }
@@ -27,14 +35,25 @@ public:
 	UDayNightController* GetTimeController() { return dayNightComponent; }
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pathfinding")
 		bool codeClickToMove = false;
-	UFUNCTION(Blueprintcallable)
-		void MoveToMapLocation(UWalkableComponent* location);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pathfinding")
+		bool moveAutomaticly = false;
+		
+		UFUNCTION(Blueprintcallable)
+			void MoveToPath(AActor* actor);
 	UFUNCTION(Blueprintpure)
 		int GetActionPoints() { return currentActionPoints; }
 	UFUNCTION(Blueprintcallable)
     bool DoAction(int pointsCost);
 	UFUNCTION(Blueprintcallable)
 		void ReplenishActionPoints(int amount);
+	
+	UFUNCTION(Blueprintcallable)
+		void SetCurrentTile(AActor* tile);
+	
+	
+	void MoveToMapLocation(TArray<UWalkableComponent*> location);
+	UFUNCTION(Blueprintcallable)
+		void GeneratePathToCurrentClickable();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -44,7 +63,10 @@ protected:
 		int currentActionPoints = 11;
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 		FOnActionPointChange onPointChange;
-	void CheckForWalkable();
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+		FOnActionError actionFailed;
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+		FPathFound onFoundPath;
 	UInputComponent* inputComponent;
 public:	
 	// Called every frame

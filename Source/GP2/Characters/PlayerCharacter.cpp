@@ -5,6 +5,7 @@
 #include "../Components/WalkableComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "../Algorithms/Pathfinder.h"
 #include "Math/UnrealMathUtility.h"
 
 // Sets default values
@@ -28,9 +29,14 @@ void APlayerCharacter::ChangeTimeOfDay(bool toggle, TimeState state)
 	}
 }
 
-void APlayerCharacter::MoveToMapLocation(UWalkableComponent* location)
+
+
+void APlayerCharacter::MoveToPath(AActor* actor)
 {
-	this->SetActorLocation(location->GetOwner()->GetActorLocation());
+	UWalkableComponent* walkable = actor->FindComponentByClass<UWalkableComponent>();
+	if (walkable) {
+		currentTile = walkable;
+	}
 }
 
 bool APlayerCharacter::DoAction(int pointsCost)
@@ -52,55 +58,104 @@ void APlayerCharacter::ReplenishActionPoints(int amount)
 	}
 }
 
+void APlayerCharacter::SetCurrentTile(AActor* tile)
+{
+	UWalkableComponent* walkable = tile->FindComponentByClass<UWalkableComponent>();
+	if (walkable) {
+		currentTile = walkable;
+	}
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if (startingTile) {
+		UWalkableComponent* walkable = startingTile->FindComponentByClass<UWalkableComponent>();
+		if (walkable) {
+			currentTile = walkable;
+		}
+	}
+	if (!currentTile) {
+		FHitResult HitRes;
+		FVector start = GetActorLocation();
+		FVector end = start - GetActorUpVector() * 200;
+		FCollisionQueryParams CollisionParameters(FName(TEXT("TraceGround")), false, this);
+		GetWorld()->LineTraceSingleByChannel(HitRes, start, end, ECollisionChannel::ECC_WorldStatic, CollisionParameters);
+		if (HitRes.Actor.IsValid()) {
+			UWalkableComponent* walkable = HitRes.GetActor()->FindComponentByClass<UWalkableComponent>();
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Hit: " + HitRes.GetActor()->GetFName().ToString()));
+			if (walkable) {
+			
+				currentTile = walkable;
+
+			}
+		}
+	}
 	
 }
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (codeClickToMove) {
-		PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &APlayerCharacter::CheckForWalkable);
+		PlayerInputComponent->BindKey(EKeys::E, IE_Pressed, this, &APlayerCharacter::GeneratePathToCurrentClickable);
 	}
 	
 	inputComponent = PlayerInputComponent;
 
 }
-void APlayerCharacter::CheckForWalkable()
+void APlayerCharacter::GeneratePathToCurrentClickable()
 {
 	FHitResult HitRes;
-	float x;
-	float y;
 	APlayerController* input = UGameplayStatics::GetPlayerController(this, 0);
-	
 	if (!input) {
 		return;
 	}
-	input->GetMousePosition(x, y);
-	FVector StartLocation;
-	FVector direction;
-	FVector EndLocation;
-	input->DeprojectMousePositionToWorld(StartLocation, direction);
-	EndLocation = StartLocation + direction * 1000;
-
-	APlayerCameraManager* camManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-	FCollisionQueryParams CollisionParameters(FName(TEXT("TraceGround")), false, this);
-	//FVector StartLocation = camManager->GetCameraLocation();
-	//FVector EndLocation = camManager->GetCameraLocation() + camManager->GetActorForwardVector() * 20000;
-	GetWorld()->LineTraceSingleByChannel(HitRes, StartLocation , EndLocation , ECollisionChannel::ECC_WorldStatic, CollisionParameters);
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Green, false, 2, 5, 1.f);
-	//GetWorld()->LineTraceSingleByChannel(HitRes, camManager->GetCameraLocation(), camManager->GetCameraLocation() + camManager->GetActorForwardVector() * 100, ECC_Visibility);
+	input->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery1, true, HitRes);
 	if (HitRes.Actor.IsValid()) {
 		UWalkableComponent* walkable = HitRes.GetActor()->FindComponentByClass<UWalkableComponent>();
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Hit: " + HitRes.GetActor()->GetFName().ToString()));
 		if (walkable) {
-			if (walkable->blocked) {
-				return;
+			
+			if (currentTile) {
+				TArray<UWalkableComponent*> path = Pathfinder::FindPath(currentTile, walkable, currentActionPoints);
+				TArray<AActor*> actorPath;
+				for (size_t i = 0; i < path.Num(); i++)
+				{
+					actorPath.Add(path[i]->GetOwner());
+				}
+				if (path.Num() == 0) {
+					actionFailed.Broadcast(NoPath);
+					return;
+				}
+				onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
 			}
-			MoveToMapLocation(walkable);
+			else {
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("There is no current tile"));
+			}
+			
 		}
 	}
+}
+void APlayerCharacter::MoveToMapLocation(TArray<UWalkableComponent*> path)
+{
+	if (path.Num() == 0) {
+		actionFailed.Broadcast(NoPath);
+		return;
+	}
+	if (moveAutomaticly) {
+		this->SetActorLocation(path[path.Num() - 1]->GetOwner()->GetActorLocation());
+		DoAction(Pathfinder::actionPointsSpentLast);
+	}
+	else {
+		TArray<AActor*> actorPath;
+		for (size_t i = 0; i < path.Num(); i++)
+		{
+			actorPath.Add(path[i]->GetOwner());
+		}
+		onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
+	}
+
 }
 
 // Called every frame
