@@ -58,6 +58,14 @@ void APlayerCharacter::ReplenishActionPoints(int amount)
 	}
 }
 
+void APlayerCharacter::SetCurrentTile(AActor* tile)
+{
+	UWalkableComponent* walkable = tile->FindComponentByClass<UWalkableComponent>();
+	if (walkable) {
+		currentTile = walkable;
+	}
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
