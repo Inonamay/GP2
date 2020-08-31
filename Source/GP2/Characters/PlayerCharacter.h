@@ -47,7 +47,8 @@ public:
 	UFUNCTION(Blueprintcallable)
 		void ReplenishActionPoints(int amount);
 	
-	
+	UFUNCTION(Blueprintcallable)
+		void SetCurrentTile(AActor* tile);
 	
 	
 	void MoveToMapLocation(TArray<UWalkableComponent*> location);
