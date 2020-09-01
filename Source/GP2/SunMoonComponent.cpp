@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SunMoonComponent.h"
 
 USunMoonComponent::USunMoonComponent() {
@@ -11,10 +8,17 @@ USunMoonComponent::USunMoonComponent() {
 
 void USunMoonComponent::BeginPlay() {
 	Super::BeginPlay();
-	sun->SetActorLocation(FVector(center->GetActorLocation().X + distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z + activeHeight));
-	moon->SetActorLocation(FVector(center->GetActorLocation().X - distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z + inactiveHeight));
-	nightAngleFromCenter = 180;
-	dayAngleFromCenter = 0;
+	sun->SetActorLocation(FVector(center->GetActorLocation().X + distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z));
+	moon->SetActorLocation(FVector(center->GetActorLocation().X - distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z));
+
+	vActiveHeight.Z = activeHeight;
+	vInactiveHeight.Z = inactiveHeight;
+
+	dayRot = FRotator(0, dayAngle, 0);
+	nightRot = FRotator(0, nightAngle, 0);
+
+	sunTargetLocation.Z = sun->GetActorLocation().Z + vActiveHeight.Z;
+	moonTargetLocation.Z = moon->GetActorLocation().Z + vInactiveHeight.Z;
 
 	dayNightTriggerComponent->onDay.AddDynamic(this, &USunMoonComponent::ToggleCelestials);
 	dayNightTriggerComponent->onNight.AddDynamic(this, &USunMoonComponent::ToggleCelestials);
@@ -22,47 +26,43 @@ void USunMoonComponent::BeginPlay() {
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("CelestialCenter")), celestialsArray);
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Sun")), celestialsArray);
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Moon")), celestialsArray);
+		
+	sun->SetActorRelativeRotation(FRotator(0, 180, 0));
 
 }
 
 void USunMoonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	MoveCelestials();
-
+	MoveCelestials(DeltaTime);
 }
 
 
 void USunMoonComponent::ToggleCelestials(int dayNight) {
 	if (dayNight == 0) {
-		targetAngleFromCenter.Yaw = dayAngleFromCenter;
+		targetRot.Yaw = dayRot.Yaw;
+		startRot = center->GetActorRotation();
 		dayOrNight = TestDay;
-		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Day Current angle: %f, Target angle: %f"), center->GetActorRotation().Yaw, targetAngleFromCenter.Yaw));
+		time = 0;
+		sunTargetLocation.Z = sun->GetActorLocation().Z + vActiveHeight.Z * 2;
+		moonTargetLocation.Z = moon->GetActorLocation().Z + vInactiveHeight.Z * 2;
 	}
-	else {
-		targetAngleFromCenter.Yaw = nightAngleFromCenter;
+	else if (dayNight == 1) {
+		targetRot.Yaw = nightRot.Yaw;
+		startRot = center->GetActorRotation();
 		dayOrNight = TestNight;
-		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Night Current angle: %f, Target angle: %f"), center->GetActorRotation().Yaw, targetAngleFromCenter.Yaw));
+		time = 0;
+		sunTargetLocation.Z = sun->GetActorLocation().Z + vInactiveHeight.Z * 2;
+		moonTargetLocation.Z = moon->GetActorLocation().Z + vActiveHeight.Z * 2;
 	}
+
 }
 
-void USunMoonComponent::MoveCelestials() {
+void USunMoonComponent::MoveCelestials(float DeltaTime) {
 
-	FRotator NewRotation = FRotator(0, rotationSpeed, 0);
+	if (dayOrNight == TestDay || dayOrNight == TestNight ) {
+		center->SetActorRotation(FMath::RInterpConstantTo(center->GetActorRotation(), targetRot, DeltaTime, 360 / duration));
 
-	FQuat QuatRotation = FQuat(NewRotation);
-
-	if (targetAngleFromCenter.Yaw == dayAngleFromCenter) {
-		if (!FMath::IsWithin(center->GetActorRotation().Yaw, targetAngleFromCenter.Yaw - 0.1f, targetAngleFromCenter.Yaw + 0.1f)) {
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Current angle: %f, Target angle: %f"), center->GetActorRotation().Yaw, targetAngleFromCenter.Yaw));
-			center->AddActorLocalRotation(QuatRotation, false, 0, ETeleportType::None);
-			
-		}
-	}
-	else if (targetAngleFromCenter.Yaw == nightAngleFromCenter) {
-		if (!FMath::IsWithin(center->GetActorRotation().Yaw, targetAngleFromCenter.Yaw - 0.1f, targetAngleFromCenter.Yaw + 0.1f)) {
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Current angle: %f, Target angle: %f"), center->GetActorRotation().Yaw, targetAngleFromCenter.Yaw));
-			center->AddActorLocalRotation(QuatRotation, false, 0, ETeleportType::None);
-			
-		}
+		sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (activeHeight + -inactiveHeight) * 2 / duration));
+		moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (activeHeight + -inactiveHeight) * 2 / duration));
 	}
 }
