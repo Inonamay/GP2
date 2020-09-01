@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/DayNightTriggerComponent.h"
 #include "Math/Range.h"
+#include "Misc/App.h"
 #include "SunMoonComponent.generated.h"
 
 UENUM()
@@ -29,25 +30,33 @@ class GP2_API USunMoonComponent : public UActorComponent
 public:
 	
 	UPROPERTY(EditAnywhere)
-		float distanceFromCenter = 500;
-	float nightAngleFromCenter;
-	float dayAngleFromCenter;
+	float distanceFromCenter = 500;
+	
 	UPROPERTY(EditAnywhere)
-	float activeHeight = 0;
+	float activeHeight = 100;
 	UPROPERTY(EditAnywhere)
-	float inactiveHeight = 0;
+	float inactiveHeight = -100;
 
 	FVector lookDirection;
 	FRotator celestialRotation;
 
+	float time = 0;
+	UPROPERTY(EditAnywhere)
+	float duration = 2;
+
+
 	float sunActiveIntensity;
 	float sunInactiveIntensity;
-
 	float moonActiveIntensity;
 	float moonInactiveIntensity;
 
 	UPROPERTY(EditAnywhere)
-	float rotationSpeed = 1;
+	int transitionTime = 10;
+	UPROPERTY(EditAnywhere)
+	int interpSpeed = 100;
+
+	UPROPERTY(EditAnywhere)
+	int celestialVerticalSpeed;
 
 	bool toggle;
 
@@ -65,10 +74,23 @@ private:
 
 	TArray<AActor*> celestialsArray;
 
-	FRotator currentAngleFromCenter;
-	FRotator targetAngleFromCenter;
 	float sunCurrentIntensity;
 	float moonCurrentIntensity;
+
+	float dayAngle = 0;
+	float nightAngle = 180;
+
+	FRotator startRot;
+	FRotator targetRot;
+	FRotator dayRot;
+	FRotator nightRot;
+
+	FVector sunCurrentLocation;
+	FVector sunTargetLocation;
+	FVector moonTargetLocation;
+
+	FVector vActiveHeight;
+	FVector vInactiveHeight;
 
 public:	
 	// Sets default values for this component's properties
@@ -84,6 +106,6 @@ public:
 
 	UFUNCTION()
 	void ToggleCelestials(int dayNight);
-	void MoveCelestials();
+	void MoveCelestials(float DeltaTime);
 
 };
