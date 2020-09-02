@@ -10,6 +10,7 @@
 #include "Components/DayNightTriggerComponent.h"
 #include "Math/Range.h"
 #include "Misc/App.h"
+#include "Components/DirectionalLightComponent.h"
 #include "SunMoonComponent.generated.h"
 
 UENUM()
@@ -45,10 +46,20 @@ public:
 	float duration = 2;
 
 
-	float sunActiveIntensity;
-	float sunInactiveIntensity;
-	float moonActiveIntensity;
-	float moonInactiveIntensity;
+	AActor* sunLightActor;
+	AActor* moonLightActor;
+
+	UDirectionalLightComponent* sunDirLight;
+	UDirectionalLightComponent* moonDirLight;
+
+	UPROPERTY(EditAnywhere)
+	float sunActiveIntensity = 10;
+	UPROPERTY(EditAnywhere)
+	float sunInactiveIntensity = 0;
+	UPROPERTY(EditAnywhere)
+	float moonActiveIntensity = 10;
+	UPROPERTY(EditAnywhere)
+	float moonInactiveIntensity = 0;
 
 	UPROPERTY(EditAnywhere)
 	int transitionTime = 10;
@@ -73,9 +84,13 @@ public:
 private:
 
 	TArray<AActor*> celestialsArray;
+	TArray<AActor*> lightArray;
+	TArray<UDirectionalLightComponent*> dirLightArray;
 
 	float sunCurrentIntensity;
 	float moonCurrentIntensity;
+	float sunTargetIntensity;
+	float moonTargetIntensity;
 
 	float dayAngle = 0;
 	float nightAngle = 180;
