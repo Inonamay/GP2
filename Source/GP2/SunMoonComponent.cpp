@@ -9,7 +9,6 @@ USunMoonComponent::USunMoonComponent() {
 void USunMoonComponent::BeginPlay() {
 	Super::BeginPlay();
 	
-
 	vActiveHeight.Z = activeHeight;
 	vInactiveHeight.Z = inactiveHeight;
 
@@ -43,8 +42,6 @@ void USunMoonComponent::BeginPlay() {
 		}
 	}
 
-	
-
 	if (sunLightActor != nullptr && moonLightActor != nullptr) {
 		sunDirLight = sunLightActor->FindComponentByClass<UDirectionalLightComponent>();
 		moonDirLight = moonLightActor->FindComponentByClass<UDirectionalLightComponent>();
@@ -56,7 +53,8 @@ void USunMoonComponent::BeginPlay() {
 	sunTargetLocation.Z = sun->GetActorLocation().Z + vActiveHeight.Z;
 	moonTargetLocation.Z = moon->GetActorLocation().Z + vInactiveHeight.Z;
 
-	sun->SetActorRelativeRotation(FRotator(0, 180, 0));
+	sun->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(sun->GetActorLocation(), center->GetActorLocation()));
+	moon->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(moon->GetActorLocation(), center->GetActorLocation()));
 
 }
 

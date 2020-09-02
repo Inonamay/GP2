@@ -38,13 +38,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	float inactiveHeight = -100;
 
-	FVector lookDirection;
-	FRotator celestialRotation;
-
-	float time = 0;
 	UPROPERTY(EditAnywhere)
 	float duration = 2;
-
 
 	AActor* sunLightActor;
 	AActor* moonLightActor;
@@ -61,22 +56,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	float moonInactiveIntensity = 0;
 
-	UPROPERTY(EditAnywhere)
-	int transitionTime = 10;
-	UPROPERTY(EditAnywhere)
-	int interpSpeed = 100;
-
-	UPROPERTY(EditAnywhere)
-	int celestialVerticalSpeed;
-
 	bool toggle;
 
-	APawn* playerCharacter;
 	UPROPERTY(EditAnywhere)
 	AActor* center;
-	UPROPERTY(EditAnywhere)
+	APawn* playerCharacter;
 	AActor* sun;
-	UPROPERTY(EditAnywhere)
 	AActor* moon;
 
 	TEnumAsByte<DayNight> dayOrNight;
@@ -94,6 +79,7 @@ private:
 
 	float dayAngle = 0;
 	float nightAngle = 180;
+	float time = 0;
 
 	FRotator startRot;
 	FRotator targetRot;
