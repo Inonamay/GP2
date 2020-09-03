@@ -73,6 +73,7 @@ protected:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 		FPathFound onFoundPath;
 	UInputComponent* inputComponent;
+private:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

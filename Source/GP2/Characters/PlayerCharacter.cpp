@@ -72,7 +72,12 @@ void APlayerCharacter::SetCurrentTile(AActor* tile)
 
 TimeState APlayerCharacter::GetCurrentState()
 {
-	return gameMode->GetState();
+	if (gameMode) {
+		return gameMode->GetState();
+	}
+	else {
+		return Day;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -132,37 +137,42 @@ void APlayerCharacter::GeneratePathToCurrentClickable()
 		UWalkableComponent* walkable = HitRes.GetActor()->FindComponentByClass<UWalkableComponent>();
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Hit: " + HitRes.GetActor()->GetFName().ToString()));
 		if (walkable) {
-			
-			if (currentTile) {
-				TArray<UWalkableComponent*> path;
-				TArray<AActor*> actorPath;
-				if (walkable == currentTile) {
-					actorPath.Add(currentTile->GetOwner());
-					onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
-					return;
-
-				}
-			    path = Pathfinder::FindPath(currentTile, walkable, currentActionPoints);
-				
-				for (size_t i = 0; i < path.Num(); i++)
-				{
-					actorPath.Add(path[i]->GetOwner());
-				}
-				if (path.Num() == 0) {
-					actionFailed.Broadcast(NoPath);
-					return;
-				}
-				onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
-			}
-			else {
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("There is no current tile"));
-			}
-			
+			GeneratePathToWalkable(walkable->GetOwner());
 		}
 	}
 }
 void APlayerCharacter::GeneratePathToWalkable(AActor* tile)
 {
+	if (!tile) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Tile not valid!"));
+		return;
+	}
+	UWalkableComponent* walkable = tile->FindComponentByClass<UWalkableComponent>();
+	if (currentTile) {
+		TArray<UWalkableComponent*> path;
+		TArray<AActor*> actorPath;
+		if (walkable == currentTile) {
+			actorPath.Add(currentTile->GetOwner());
+			onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
+			return;
+
+		}
+		path = Pathfinder::FindPath(currentTile, walkable, currentActionPoints);
+
+		for (size_t i = 0; i < path.Num(); i++)
+		{
+			actorPath.Add(path[i]->GetOwner());
+		}
+		if (path.Num() == 0) {
+			actionFailed.Broadcast(NoPath);
+			return;
+		}
+		onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("There is no current tile"));
+	}
+
 }
 void APlayerCharacter::MoveToMapLocation(TArray<UWalkableComponent*> path)
 {
