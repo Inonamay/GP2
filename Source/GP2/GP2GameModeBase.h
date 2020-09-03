@@ -35,7 +35,16 @@ public:
 		void Redo(int stepsAmount);
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 		FOnUndoPlayerMove UndoPlayerMove;
+	UFUNCTION(BlueprintPure)
+	TimeState GetState() { return state; }
+	UFUNCTION(Blueprintcallable)
+	void ToggleDayNight();
+	UFUNCTION(Blueprintcallable)
+		void SetTime(TimeState _state);
+	void UpdateTriggerComponents();
+	void AddTriggerComponent(UDayNightTriggerComponent* triggerToAdd);
 private:
-	UDayNightController* timeController;
+	TimeState state;
+	TArray<UDayNightTriggerComponent*> triggers;
 	APlayerCharacter* player;
 };
