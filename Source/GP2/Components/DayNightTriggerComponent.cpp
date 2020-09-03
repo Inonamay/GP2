@@ -3,13 +3,13 @@
 
 #include "DayNightTriggerComponent.h"
 #include "../Characters/PlayerCharacter.h"
+#include "../GP2GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 // Sets default values for this component's properties
 UDayNightTriggerComponent::UDayNightTriggerComponent()
 {
 	
 }
-APlayerCharacter* UDayNightTriggerComponent::player;
 void UDayNightTriggerComponent::ChangeTime(TimeState state) {
 	if (state == Day) {
 		onDay.Broadcast(0);
@@ -18,30 +18,21 @@ void UDayNightTriggerComponent::ChangeTime(TimeState state) {
 		onNight.Broadcast(1);
 	}
 }
-void UDayNightTriggerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	if (player != nullptr) {
-		player = nullptr;
-	}
-}
 // Called when the game starts
 void UDayNightTriggerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	if (player == nullptr) {
-		ACharacter* inWorldPlayer = UGameplayStatics::GetPlayerCharacter(GetOwner(), 0);
-		if (inWorldPlayer) {
-			APlayerCharacter* castTarget = Cast<APlayerCharacter>(inWorldPlayer);
+    AGameModeBase* mode = UGameplayStatics::GetGameMode(GetOwner());
+		if (mode) {
+			AGP2GameModeBase* castTarget = Cast<AGP2GameModeBase>(mode);
 			if (!castTarget) {
 				return;
 			}
-			player = castTarget;
+			castTarget->AddTriggerComponent(this);
 		}
 		else {
 			return;
 		}
-	}
-	player->GetTimeController()->AddTriggerComponent(this);
 
 	// ...
 	
