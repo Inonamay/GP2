@@ -30,47 +30,44 @@ class GP2_API USunMoonComponent : public UActorComponent
 
 public:
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Positioning")
 	float distanceFromCenter = 500;
-	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Positioning")
 	float activeHeight = 100;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Positioning")
 	float inactiveHeight = -100;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Duration")
 	float duration = 2;
+
+	UPROPERTY(EditAnywhere, Category = "Light")
+	float sunActiveIntensity = 10;
+	UPROPERTY(EditAnywhere, Category = "Light")
+	float sunInactiveIntensity = 0;
+	UPROPERTY(EditAnywhere, Category = "Light")
+	float moonActiveIntensity = 10;
+	UPROPERTY(EditAnywhere, Category = "Light")
+	float moonInactiveIntensity = 0;
+
+	bool toggle;
+
+	UPROPERTY(EditAnywhere, Category = "Center Reference")
+	AActor* center;
+	APawn* playerCharacter;
+	AActor* sun;
+	AActor* moon;
+
+private:
+	TEnumAsByte<DayNight> dayOrNight;
+	TArray<AActor*> celestialsArray;
+	TArray<AActor*> lightArray;
+	TArray<UDirectionalLightComponent*> dirLightArray;
 
 	AActor* sunLightActor;
 	AActor* moonLightActor;
 
 	UDirectionalLightComponent* sunDirLight;
 	UDirectionalLightComponent* moonDirLight;
-
-	UPROPERTY(EditAnywhere)
-	float sunActiveIntensity = 10;
-	UPROPERTY(EditAnywhere)
-	float sunInactiveIntensity = 0;
-	UPROPERTY(EditAnywhere)
-	float moonActiveIntensity = 10;
-	UPROPERTY(EditAnywhere)
-	float moonInactiveIntensity = 0;
-
-	bool toggle;
-
-	UPROPERTY(EditAnywhere)
-	AActor* center;
-	APawn* playerCharacter;
-	AActor* sun;
-	AActor* moon;
-
-	TEnumAsByte<DayNight> dayOrNight;
-
-private:
-
-	TArray<AActor*> celestialsArray;
-	TArray<AActor*> lightArray;
-	TArray<UDirectionalLightComponent*> dirLightArray;
 
 	float sunCurrentIntensity;
 	float moonCurrentIntensity;
