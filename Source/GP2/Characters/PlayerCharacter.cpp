@@ -60,6 +60,10 @@ void APlayerCharacter::ReplenishActionPoints(int amount)
 
 void APlayerCharacter::SetCurrentTile(AActor* tile)
 {
+	if (!tile) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Not valid tile!"));
+		return;
+	}
 	UWalkableComponent* walkable = tile->FindComponentByClass<UWalkableComponent>();
 	if (walkable) {
 		currentTile = walkable;

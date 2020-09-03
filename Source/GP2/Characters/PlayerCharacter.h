@@ -59,7 +59,7 @@ protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int maxActionPoints = 11;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int currentActionPoints = 11;
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 		FOnActionPointChange onPointChange;
