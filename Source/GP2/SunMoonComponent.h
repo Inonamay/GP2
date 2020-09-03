@@ -10,6 +10,7 @@
 #include "Components/DayNightTriggerComponent.h"
 #include "Math/Range.h"
 #include "Misc/App.h"
+#include "Components/DirectionalLightComponent.h"
 #include "SunMoonComponent.generated.h"
 
 UENUM()
@@ -37,35 +38,30 @@ public:
 	UPROPERTY(EditAnywhere)
 	float inactiveHeight = -100;
 
-	FVector lookDirection;
-	FRotator celestialRotation;
-
-	float time = 0;
 	UPROPERTY(EditAnywhere)
 	float duration = 2;
 
+	AActor* sunLightActor;
+	AActor* moonLightActor;
 
-	float sunActiveIntensity;
-	float sunInactiveIntensity;
-	float moonActiveIntensity;
-	float moonInactiveIntensity;
-
-	UPROPERTY(EditAnywhere)
-	int transitionTime = 10;
-	UPROPERTY(EditAnywhere)
-	int interpSpeed = 100;
+	UDirectionalLightComponent* sunDirLight;
+	UDirectionalLightComponent* moonDirLight;
 
 	UPROPERTY(EditAnywhere)
-	int celestialVerticalSpeed;
+	float sunActiveIntensity = 10;
+	UPROPERTY(EditAnywhere)
+	float sunInactiveIntensity = 0;
+	UPROPERTY(EditAnywhere)
+	float moonActiveIntensity = 10;
+	UPROPERTY(EditAnywhere)
+	float moonInactiveIntensity = 0;
 
 	bool toggle;
 
-	APawn* playerCharacter;
 	UPROPERTY(EditAnywhere)
 	AActor* center;
-	UPROPERTY(EditAnywhere)
+	APawn* playerCharacter;
 	AActor* sun;
-	UPROPERTY(EditAnywhere)
 	AActor* moon;
 
 	TEnumAsByte<DayNight> dayOrNight;
@@ -73,12 +69,17 @@ public:
 private:
 
 	TArray<AActor*> celestialsArray;
+	TArray<AActor*> lightArray;
+	TArray<UDirectionalLightComponent*> dirLightArray;
 
 	float sunCurrentIntensity;
 	float moonCurrentIntensity;
+	float sunTargetIntensity;
+	float moonTargetIntensity;
 
 	float dayAngle = 0;
 	float nightAngle = 180;
+	float time = 0;
 
 	FRotator startRot;
 	FRotator targetRot;
