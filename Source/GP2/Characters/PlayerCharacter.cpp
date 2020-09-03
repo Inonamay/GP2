@@ -21,6 +21,9 @@ APlayerCharacter::APlayerCharacter()
 }
 void APlayerCharacter::ChangeTimeOfDay(bool toggle, TimeState state)
 {
+	if (!gameMode) {
+		return;
+	}
 	if (toggle) {
 		gameMode->ToggleDayNight();
 	}
