@@ -22,10 +22,10 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::ChangeTimeOfDay(bool toggle, TimeState state)
 {
 	if (toggle) {
-		dayNightComponent->ToggleDayNight();
+		gameMode->ToggleDayNight();
 	}
 	else {
-		dayNightComponent->SetTime(state);
+		gameMode->SetTime(state);
 	}
 }
 
@@ -60,10 +60,19 @@ void APlayerCharacter::ReplenishActionPoints(int amount)
 
 void APlayerCharacter::SetCurrentTile(AActor* tile)
 {
+	if (!tile) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Not valid tile!"));
+		return;
+	}
 	UWalkableComponent* walkable = tile->FindComponentByClass<UWalkableComponent>();
 	if (walkable) {
 		currentTile = walkable;
 	}
+}
+
+TimeState APlayerCharacter::GetCurrentState()
+{
+	return gameMode->GetState();
 }
 
 // Called when the game starts or when spawned
@@ -92,7 +101,14 @@ void APlayerCharacter::BeginPlay()
 			}
 		}
 	}
-	
+	AGameModeBase* mode = UGameplayStatics::GetGameMode(this);
+	if (mode) {
+		AGP2GameModeBase* castTarget = Cast<AGP2GameModeBase>(mode);
+		if (!castTarget) {
+			return;
+		}
+		gameMode = castTarget;
+	}
 }
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -118,8 +134,16 @@ void APlayerCharacter::GeneratePathToCurrentClickable()
 		if (walkable) {
 			
 			if (currentTile) {
-				TArray<UWalkableComponent*> path = Pathfinder::FindPath(currentTile, walkable, currentActionPoints);
+				TArray<UWalkableComponent*> path;
 				TArray<AActor*> actorPath;
+				if (walkable == currentTile) {
+					actorPath.Add(currentTile->GetOwner());
+					onFoundPath.Broadcast(actorPath, Pathfinder::actionPointsSpentLast);
+					return;
+
+				}
+			    path = Pathfinder::FindPath(currentTile, walkable, currentActionPoints);
+				
 				for (size_t i = 0; i < path.Num(); i++)
 				{
 					actorPath.Add(path[i]->GetOwner());
@@ -136,6 +160,9 @@ void APlayerCharacter::GeneratePathToCurrentClickable()
 			
 		}
 	}
+}
+void APlayerCharacter::GeneratePathToWalkable(AActor* tile)
+{
 }
 void APlayerCharacter::MoveToMapLocation(TArray<UWalkableComponent*> path)
 {

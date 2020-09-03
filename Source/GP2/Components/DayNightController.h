@@ -18,17 +18,13 @@ class GP2_API UDayNightController : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UDayNightController();
-	void AddTriggerComponent(UDayNightTriggerComponent* triggerToAdd);
-	void ToggleDayNight();
+	
 	UFUNCTION(Blueprintcallable)
 	void SetTime(TimeState _state);
-	void UpdateTriggerComponents();
 	UFUNCTION(Blueprintpure)
-	TimeState GetState() { return state; }
+		TimeState GetState();
 protected:
 private:
-	TimeState state;
-	TArray<UDayNightTriggerComponent*> triggers;
 public:	
 
 		

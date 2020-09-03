@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../Components/DayNightController.h"
+#include "../GP2GameModeBase.h"
 #include "PlayerCharacter.generated.h"
 UENUM(Blueprinttype)
 enum ActionError {
@@ -23,43 +24,47 @@ class GP2_API APlayerCharacter : public ACharacter
 	UDayNightController* dayNightComponent;
 public:
 	// Sets default values for this character's properties
+	AGP2GameModeBase* gameMode;
 	APlayerCharacter();
+#pragma region Pathfinding
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pathfinding")
 		AActor* startingTile;
 		UWalkableComponent* currentTile;
-	UFUNCTION(BlueprintPure)
-		TimeState GetCurrentState() { return dayNightComponent->GetState(); }
-	UFUNCTION(Blueprintcallable)
-		void ChangeTimeOfDay(bool toggle, TimeState state);
-	UFUNCTION(BlueprintPure)
-	UDayNightController* GetTimeController() { return dayNightComponent; }
+    UFUNCTION(Blueprintcallable)
+	    void SetCurrentTile(AActor* tile);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pathfinding")
 		bool codeClickToMove = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pathfinding")
 		bool moveAutomaticly = false;
-		
-		UFUNCTION(Blueprintcallable)
-			void MoveToPath(AActor* actor);
+	UFUNCTION(Blueprintcallable)
+		void MoveToPath(AActor* actor);
+	void MoveToMapLocation(TArray<UWalkableComponent*> location);
+	UFUNCTION(Blueprintcallable)
+		void GeneratePathToCurrentClickable();
+	UFUNCTION(Blueprintcallable)
+		void GeneratePathToWalkable(AActor* tile);
+#pragma endregion
+#pragma region Action points
 	UFUNCTION(Blueprintpure)
 		int GetActionPoints() { return currentActionPoints; }
 	UFUNCTION(Blueprintcallable)
     bool DoAction(int pointsCost);
 	UFUNCTION(Blueprintcallable)
 		void ReplenishActionPoints(int amount);
-	
+#pragma endregion
 	UFUNCTION(Blueprintcallable)
-		void SetCurrentTile(AActor* tile);
+		void ChangeTimeOfDay(bool toggle, TimeState state);
+
+	UFUNCTION(BlueprintPure)
+		TimeState GetCurrentState();
 	
 	
-	void MoveToMapLocation(TArray<UWalkableComponent*> location);
-	UFUNCTION(Blueprintcallable)
-		void GeneratePathToCurrentClickable();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int maxActionPoints = 11;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		int currentActionPoints = 11;
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 		FOnActionPointChange onPointChange;
