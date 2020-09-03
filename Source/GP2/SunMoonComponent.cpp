@@ -46,15 +46,14 @@ void USunMoonComponent::BeginPlay() {
 		moonDirLight = moonLightActor->FindComponentByClass<UDirectionalLightComponent>();
 	}
 
-	sun->SetActorLocation(FVector(center->GetActorLocation().X + distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z));
-	moon->SetActorLocation(FVector(center->GetActorLocation().X - distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z));
+	sunTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
+	moonTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
 
-	sunTargetLocation.Z = sun->GetActorLocation().Z + vActiveHeight.Z;
-	moonTargetLocation.Z = moon->GetActorLocation().Z + vInactiveHeight.Z;
+	sun->SetActorLocation(FVector(center->GetActorLocation().X + distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z + vActiveHeight.Z));
+	moon->SetActorLocation(FVector(center->GetActorLocation().X - distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z + vInactiveHeight.Z));
 
 	sun->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(sun->GetActorLocation(), center->GetActorLocation()));
 	moon->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(moon->GetActorLocation(), center->GetActorLocation()));
-
 }
 
 void USunMoonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
@@ -87,18 +86,14 @@ void USunMoonComponent::ToggleCelestials(int dayNight) {
 		sunTargetIntensity = sunInactiveIntensity;
 		moonTargetIntensity = moonActiveIntensity;
 	}
-
 }
 
 void USunMoonComponent::MoveCelestials(float DeltaTime) {
+		center->SetActorRotation(FMath::RInterpConstantTo(center->GetActorRotation(), targetRot, DeltaTime, 180 / duration));
 
-	if (dayOrNight == TestDay || dayOrNight == TestNight ) {
-		center->SetActorRotation(FMath::RInterpConstantTo(center->GetActorRotation(), targetRot, DeltaTime, 360 / duration));
-
-		sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, 2*(activeHeight + -inactiveHeight) / duration));
-		moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, 2*(activeHeight + -inactiveHeight) / duration));
+		sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (activeHeight + -inactiveHeight) / duration));
+		moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (activeHeight + -inactiveHeight) / duration));
 		
-		sunDirLight->SetIntensity(FMath::FInterpConstantTo(sunDirLight->Intensity, sunTargetIntensity, DeltaTime, (sunActiveIntensity + sunInactiveIntensity) * 2 / duration));
-		moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + moonInactiveIntensity) * 2 / duration));
-	}
+		sunDirLight->SetIntensity(FMath::FInterpConstantTo(sunDirLight->Intensity, sunTargetIntensity, DeltaTime, (sunActiveIntensity + sunInactiveIntensity)  / duration));
+		moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + moonInactiveIntensity)  / duration));
 }
