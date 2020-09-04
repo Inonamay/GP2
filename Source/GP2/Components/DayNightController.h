@@ -18,7 +18,6 @@ class GP2_API UDayNightController : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UDayNightController();
-	
 	UFUNCTION(Blueprintcallable)
 	void SetTime(TimeState _state);
 	UFUNCTION(Blueprintpure)

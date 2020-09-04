@@ -96,7 +96,7 @@ void APlayerCharacter::BeginPlay()
 	if (!currentTile) {
 		FHitResult HitRes;
 		FVector start = GetActorLocation();
-		FVector end = start - GetActorUpVector() * 200;
+		FVector end = start - GetActorUpVector() * 200000;
 		FCollisionQueryParams CollisionParameters(FName(TEXT("TraceGround")), false, this);
 		GetWorld()->LineTraceSingleByChannel(HitRes, start, end, ECollisionChannel::ECC_WorldStatic, CollisionParameters);
 		if (HitRes.Actor.IsValid()) {
