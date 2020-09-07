@@ -30,28 +30,28 @@ class GP2_API USunMoonComponent : public UActorComponent
 
 public:
 	
-	UPROPERTY(EditAnywhere, Category = "Positioning")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Positioning")
 	float distanceFromCenter = 500;
-	UPROPERTY(EditAnywhere, Category = "Positioning")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Positioning")
 	float activeHeight = 100;
-	UPROPERTY(EditAnywhere, Category = "Positioning")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Positioning")
 	float inactiveHeight = -100;
 
-	UPROPERTY(EditAnywhere, Category = "Duration")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Duration")
 	float duration = 2;
 
-	UPROPERTY(EditAnywhere, Category = "Light")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light")
 	float sunActiveIntensity = 10;
-	UPROPERTY(EditAnywhere, Category = "Light")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light")
 	float sunInactiveIntensity = 0;
-	UPROPERTY(EditAnywhere, Category = "Light")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light")
 	float moonActiveIntensity = 10;
-	UPROPERTY(EditAnywhere, Category = "Light")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light")
 	float moonInactiveIntensity = 0;
 
 	bool toggle;
 
-	UPROPERTY(EditAnywhere, Category = "Center Reference")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Center Reference")
 	AActor* center;
 	APawn* playerCharacter;
 	AActor* sun;
