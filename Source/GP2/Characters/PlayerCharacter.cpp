@@ -138,7 +138,7 @@ void APlayerCharacter::GeneratePathToCurrentClickable()
 	input->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery1, true, HitRes);
 	if (HitRes.Actor.IsValid()) {
 		UWalkableComponent* walkable = HitRes.GetActor()->FindComponentByClass<UWalkableComponent>();
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Hit: " + HitRes.GetActor()->GetFName().ToString()));
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Hit: " + HitRes.GetActor()->GetFName().ToString()));
 		if (walkable) {
 			GeneratePathToWalkable(walkable->GetOwner());
 		}
