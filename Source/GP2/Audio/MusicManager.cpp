@@ -4,48 +4,66 @@
 #include "MusicManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "GameFramework/Actor.h"
 #include "Components/AudioComponent.h"
 // Sets default values for this component's properties
-UMusicManager::UMusicManager()
+AMusicManager::AMusicManager()
 {
 
 	// ...
 }
 
 
-void UMusicManager::AddLayer()
+void AMusicManager::AddLayer()
 {
-	if (activeSounds.Num() == 0) {
-		return;
+	addLayer++;
+}
+
+void AMusicManager::PlayAll()
+{
+	int a = activeSounds.Num();
+	for (size_t i = 0; i < a; i++)
+	{
+		activeSounds[i]->Stop();
 	}
-	if (layersActive < musicLayers.Num()) {
-		activeSounds.Add(UGameplayStatics::SpawnSound2D(this, musicLayers[layersActive], 1, 1, 0, nullptr, false, false));
-		activeSounds[layersActive]->Stop();
-		float delay = musicLayers[layersActive]->Duration * percentage;
-		activeSounds[layersActive]->FadeIn(1, 1, delay);
-		layersActive++;
+	activeSounds.Empty();
+	a = musicLayers.Num();
+	for (size_t i = 0; i < a; i++)
+	{
+		activeSounds.Add(UGameplayStatics::SpawnSound2D(this, musicLayers[i], 1, 1, time, nullptr, false, false));
 	}
 }
 
-void UMusicManager::UpdateTiming(const USoundWave* wave, const float percent)
+void AMusicManager::PlayMultiple(int amount)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%f"), percent));
-	percentage = percent;
+	addLayer += amount;
+}
+
+void AMusicManager::UpdateTiming()
+{
+	time += 0.1f;
+	if (addLayer > 0) {
+		if (layersActive < musicLayers.Num()) {
+			activeSounds.Add(UGameplayStatics::SpawnSound2D(this, musicLayers[layersActive], 1, 1, time, nullptr, false, false));
+			activeSounds[layersActive]->Stop();
+			activeSounds[layersActive]->FadeIn(1, 1, time);
+			layersActive++;
+		}
+		addLayer--;
+	}
+	
 }
 
 // Called when the game starts
-void UMusicManager::BeginPlay()
+void AMusicManager::BeginPlay()
 {
 	Super::BeginPlay();
 	if (musicLayers.Num() > 0) {
-		activeSounds.Add(UGameplayStatics::SpawnSound2D(this, musicLayers[0], 1, 1, 0, nullptr, false, false));
-		activeSounds[0]->Stop();
-		activeSounds[0]->OnAudioPlaybackPercent.AddDynamic(this, &UMusicManager::UpdateTiming);
-		activeSounds[0]->Play();
-		layersActive = 1;
+		GetWorldTimerManager().SetTimer(timeLine, this, &AMusicManager::UpdateTiming, 0.1f, true);
 	}
 	// ...
 	
 }
+
 
 
