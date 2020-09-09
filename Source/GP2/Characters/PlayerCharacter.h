@@ -43,6 +43,8 @@ public:
 		void GeneratePathToCurrentClickable();
 	UFUNCTION(Blueprintcallable)
 		void GeneratePathToWalkable(AActor* tile);
+	UFUNCTION(BlueprintPure)
+		UWalkableComponent* GetCurrentTile() { return currentTile; }
 #pragma endregion
 #pragma region Action points
 	UFUNCTION(Blueprintpure)

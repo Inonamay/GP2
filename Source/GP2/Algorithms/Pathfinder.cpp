@@ -52,7 +52,21 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
                
                 if (foundGoal)
                 {
-                    currentNode = node;
+                    if (node->currentPosition->blocked) {
+
+                        if (node->previous) {
+                            currentNode = node->previous;
+                            break;
+                        }
+                        else {
+                            return TArray<UWalkableComponent*>();
+                        }
+                    }
+                    else {
+                        currentNode = node;
+                        break;
+                    }
+                    
                 }
             }
         }
@@ -79,8 +93,14 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
                         }
                         
                     }
-                    currentNode = blockedPath[closest];
-                    foundGoal = true;
+                    if (blockedPath[closest]->previous) {
+                        currentNode = blockedPath[closest]->previous;
+                        foundGoal = true;
+                    }
+                    else {
+                        return TArray<UWalkableComponent*>();
+                    }
+                    
                 }
                 else {
                     return TArray<UWalkableComponent*>();
