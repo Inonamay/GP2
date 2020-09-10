@@ -29,7 +29,6 @@ class GP2_API USunMoonComponent : public UActorComponent
 
 
 public:
-	
 	UPROPERTY(EditAnywhere, Category = "Positioning")
 	float distanceFromCenter = 500;
 	UPROPERTY(EditAnywhere, Category = "Positioning")
@@ -49,6 +48,16 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Light")
 	float moonInactiveIntensity = 0;
 
+	UPROPERTY(EditAnywhere, Category = "Color")
+		FLinearColor sunActiveColor;
+	UPROPERTY(EditAnywhere, Category = "Color")
+		FLinearColor sunInactiveColor;
+	UPROPERTY(EditAnywhere, Category = "Color")
+		FLinearColor moonActiveColor;
+	UPROPERTY(EditAnywhere, Category = "Color")
+		FLinearColor moonInactiveColor;
+
+
 	bool toggle;
 
 	UPROPERTY(EditAnywhere, Category = "Center Reference")
@@ -63,6 +72,8 @@ private:
 	TArray<AActor*> lightArray;
 	TArray<UDirectionalLightComponent*> dirLightArray;
 
+
+	AActor* activeCelestial;
 	AActor* sunLightActor;
 	AActor* moonLightActor;
 
@@ -78,6 +89,8 @@ private:
 	float nightAngle = 180;
 	float time = 0;
 
+	float sunColorDuration;
+
 	FRotator startRot;
 	FRotator targetRot;
 	FRotator dayRot;
@@ -87,15 +100,21 @@ private:
 	FVector sunTargetLocation;
 	FVector moonTargetLocation;
 
+	FLinearColor sunTargetColor;
+	FLinearColor sunStartColor;
+	FLinearColor moonTargetColor;
+	FLinearColor moonStartColor;
+
+	FVector activeTargetLocation;
+	FVector inactiveTargetLocation;
+
 	FVector vActiveHeight;
 	FVector vInactiveHeight;
 
 public:	
-	// Sets default values for this component's properties
 	USunMoonComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:	

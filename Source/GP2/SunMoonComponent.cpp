@@ -65,35 +65,68 @@ void USunMoonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void USunMoonComponent::ToggleCelestials(int dayNight) {
 	if (dayNight == 0) {
 		targetRot.Yaw = dayRot.Yaw;
-		startRot = center->GetActorRotation();
-		dayOrNight = TestDay;
-		time = 0;
+
 		sunTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
 		moonTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
 
 		sunTargetIntensity = sunActiveIntensity;
 		moonTargetIntensity = moonInactiveIntensity;
+		sunTargetColor = sunActiveColor;
+		moonTargetColor = moonInactiveColor;
 	}
 	else if (dayNight == 1) {
 		targetRot.Yaw = nightRot.Yaw;
-		startRot = center->GetActorRotation();
-		dayOrNight = TestNight;
-		time = 0;
 
 		sunTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
 		moonTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
 
 		sunTargetIntensity = sunInactiveIntensity;
 		moonTargetIntensity = moonActiveIntensity;
+		sunTargetColor = sunInactiveColor;
+		moonTargetColor = moonActiveColor;
 	}
+
+	time = 0;
+	sunStartColor = sunDirLight->GetLightColor();
+	moonStartColor = moonDirLight->GetLightColor();
+
+	/*if (dayNight == 0) {
+		activeCelestial = sun;
+	}
+	else {
+		activeCelestial = moon;
+	}
+	for(AActor* celestial : celestialsArray) {
+
+	}
+
+
+	targetRot.Yaw = dayRot.Yaw;
+	startRot = center->GetActorRotation();
+
+	time = 0;
+	activeTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
+	inactiveTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
+
+	activeTargetIntensity = activeCelestial.activeIntensity;
+	inactiveTargetIntensity = activeCelestial.inactiveIntensity;*/
+
 }
 
 void USunMoonComponent::MoveCelestials(float DeltaTime) {
-		center->SetActorRotation(FMath::RInterpConstantTo(center->GetActorRotation(), targetRot, DeltaTime, 180 / duration));
+	//InterpConstant
+	center->SetActorRotation(FMath::RInterpConstantTo(center->GetActorRotation(), targetRot, DeltaTime, 180 / duration));
 
-		sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (activeHeight + -inactiveHeight) / duration));
-		moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (activeHeight + -inactiveHeight) / duration));
+	sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
+	moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
 		
-		sunDirLight->SetIntensity(FMath::FInterpConstantTo(sunDirLight->Intensity, sunTargetIntensity, DeltaTime, (sunActiveIntensity + sunInactiveIntensity)  / duration));
-		moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + moonInactiveIntensity)  / duration));
+	sunDirLight->SetIntensity(FMath::FInterpConstantTo(sunDirLight->Intensity, sunTargetIntensity, DeltaTime, (sunActiveIntensity + sunInactiveIntensity)  / duration));
+	moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + moonInactiveIntensity)  / duration));
+
+	//Lerp
+	if (duration > time) {
+		sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, time / duration));
+		moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, time / duration));
+		time += DeltaTime;
+	}
 }
