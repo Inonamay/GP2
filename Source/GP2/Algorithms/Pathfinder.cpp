@@ -22,13 +22,18 @@ TArray<UWalkableComponent*> Pathfinder::FindPath(UWalkableComponent* start, UWal
     {
         for (size_t i = 0; i < currentNode->currentPosition->connectedWalkables.Num(); i++)
         {
-            if (currentNode->stepsTaken > actionPoints) {
-                if (!blockedPath.Contains(currentNode)) {
-                    blockedPath.Add(currentNode);
-                }
-                continue;
-            }
+            
             UWalkableComponent* searchNode = currentNode->currentPosition->connectedWalkables[i];
+            if (currentNode->stepsTaken >= actionPoints) {
+                if (!blockedPath.Contains(currentNode)) {
+                    Node* node = new Node();
+                    node->stepsTaken = currentNode->stepsTaken + searchNode->Cost();
+                    node->currentPosition = searchNode;
+                    node->previous = currentNode;
+                    blockedPath.Add(node);
+                }
+                break;
+            }
             if (searchNode == end)
             {
                 foundGoal = true;
