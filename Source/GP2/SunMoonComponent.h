@@ -10,6 +10,7 @@
 #include "Components/DayNightTriggerComponent.h"
 #include "Math/Range.h"
 #include "Misc/App.h"
+#include "Curves/CurveFloat.h"
 #include "Components/DirectionalLightComponent.h"
 #include "SunMoonComponent.generated.h"
 
@@ -30,23 +31,23 @@ class GP2_API USunMoonComponent : public UActorComponent
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Positioning")
-	float distanceFromCenter = 500;
+		float distanceFromCenter = 500;
 	UPROPERTY(EditAnywhere, Category = "Positioning")
-	float activeHeight = 100;
+		float activeHeight = 100;
 	UPROPERTY(EditAnywhere, Category = "Positioning")
-	float inactiveHeight = -100;
+		float inactiveHeight = -100;
 
 	UPROPERTY(EditAnywhere, Category = "Duration")
-	float duration = 2;
+		float duration = 2;
 
 	UPROPERTY(EditAnywhere, Category = "Light")
-	float sunActiveIntensity = 10;
+		float sunActiveIntensity = 10;
 	UPROPERTY(EditAnywhere, Category = "Light")
-	float sunInactiveIntensity = 0;
+		float sunInactiveIntensity = 0;
 	UPROPERTY(EditAnywhere, Category = "Light")
-	float moonActiveIntensity = 10;
+		float moonActiveIntensity = 10;
 	UPROPERTY(EditAnywhere, Category = "Light")
-	float moonInactiveIntensity = 0;
+		float moonInactiveIntensity = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Color")
 		FLinearColor sunActiveColor;
@@ -56,12 +57,13 @@ public:
 		FLinearColor moonActiveColor;
 	UPROPERTY(EditAnywhere, Category = "Color")
 		FLinearColor moonInactiveColor;
-
+	UPROPERTY(EditAnywhere, Category = "Color")
+		UCurveFloat* colorCurve;
 
 	bool toggle;
 
 	UPROPERTY(EditAnywhere, Category = "Center Reference")
-	AActor* center;
+		AActor* center;
 	APawn* playerCharacter;
 	AActor* sun;
 	AActor* moon;

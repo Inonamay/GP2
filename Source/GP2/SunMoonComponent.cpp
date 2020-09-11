@@ -97,19 +97,15 @@ void USunMoonComponent::ToggleCelestials(int dayNight) {
 		activeCelestial = moon;
 	}
 	for(AActor* celestial : celestialsArray) {
+		targetRot.Yaw = dayRot.Yaw;
+		startRot = center->GetActorRotation();
 
-	}
+		time = 0;
+		activeTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
+		inactiveTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
 
-
-	targetRot.Yaw = dayRot.Yaw;
-	startRot = center->GetActorRotation();
-
-	time = 0;
-	activeTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
-	inactiveTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
-
-	activeTargetIntensity = activeCelestial.activeIntensity;
-	inactiveTargetIntensity = activeCelestial.inactiveIntensity;*/
+		activeTargetIntensity = activeCelestial.activeIntensity;
+		inactiveTargetIntensity = activeCelestial.inactiveIntensity;*/
 
 }
 
@@ -125,8 +121,9 @@ void USunMoonComponent::MoveCelestials(float DeltaTime) {
 
 	//Lerp
 	if (duration > time) {
-		sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, time / duration));
-		moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, time / duration));
+		sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, colorCurve->GetFloatValue(time / duration)));
+		moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, colorCurve->GetFloatValue(time / duration)));
+		GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Yellow, FString::Printf(TEXT("curve is at: %f"), colorCurve->GetFloatValue(time / duration)));
 		time += DeltaTime;
 	}
 }
