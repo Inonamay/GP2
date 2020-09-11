@@ -120,10 +120,18 @@ void USunMoonComponent::MoveCelestials(float DeltaTime) {
 	moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + moonInactiveIntensity)  / duration));
 
 	//Lerp
-	if (duration > time) {
-		sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, colorCurve->GetFloatValue(time / duration)));
-		moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, colorCurve->GetFloatValue(time / duration)));
-		GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Yellow, FString::Printf(TEXT("curve is at: %f"), colorCurve->GetFloatValue(time / duration)));
-		time += DeltaTime;
+	if (colorCurve != nullptr) {
+		if (duration > time) {
+			sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, colorCurve->GetFloatValue(time / duration)));
+			moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, colorCurve->GetFloatValue(time / duration)));
+			time += DeltaTime;
+		}
+	}
+	else {
+		if (duration > time) {
+			sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, time / duration));
+			moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, time / duration));
+			time += DeltaTime;
+		}
 	}
 }
