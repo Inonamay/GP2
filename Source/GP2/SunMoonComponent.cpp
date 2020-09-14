@@ -4,11 +4,13 @@ USunMoonComponent::USunMoonComponent() {
 	PrimaryComponentTick.bCanEverTick = true;
 	if (!dayNightTriggerComponent)
 		dayNightTriggerComponent = CreateDefaultSubobject<UDayNightTriggerComponent>("DayNightTriggerComponent");
+
+	
 }
 
 void USunMoonComponent::BeginPlay() {
 	Super::BeginPlay();
-	
+
 	vActiveHeight.Z = activeHeight;
 	vInactiveHeight.Z = inactiveHeight;
 
@@ -21,7 +23,7 @@ void USunMoonComponent::BeginPlay() {
 	GetOwner()->GetAttachedActors(celestialsArray);
 
 	for (AActor* celestial : celestialsArray) {
-		if(celestial->GetName() == "Sun")
+		if (celestial->GetName() == "Sun")
 			sun = celestial;
 		if (celestial->GetName() == "Moon")
 			moon = celestial;
@@ -54,11 +56,21 @@ void USunMoonComponent::BeginPlay() {
 
 	sun->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(sun->GetActorLocation(), center->GetActorLocation()));
 	moon->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(moon->GetActorLocation(), center->GetActorLocation()));
+
+	sunActiveIntensity = sunDirLight->Intensity;
+	moonActiveIntensity = moonDirLight->Intensity;
+
+	sunDirLight->SetIntensity(sunActiveIntensity);
+	moonDirLight->SetIntensity(moonInactiveIntensity);
+
+	sunActiveColor = sunDirLight->GetLightColor();
+	moonActiveColor = moonDirLight->GetLightColor();
+	moonDirLight->SetLightColor(moonInactiveColor);
 }
 
 void USunMoonComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	MoveCelestials(DeltaTime);
+	MoveCelestials(DeltaTime, bMoveCelestials);
 }
 
 
@@ -73,6 +85,8 @@ void USunMoonComponent::ToggleCelestials(int dayNight) {
 		moonTargetIntensity = moonInactiveIntensity;
 		sunTargetColor = sunActiveColor;
 		moonTargetColor = moonInactiveColor;
+
+		dayOrNight = DayNight::CelestialDay;
 	}
 	else if (dayNight == 1) {
 		targetRot.Yaw = nightRot.Yaw;
@@ -84,54 +98,46 @@ void USunMoonComponent::ToggleCelestials(int dayNight) {
 		moonTargetIntensity = moonActiveIntensity;
 		sunTargetColor = sunInactiveColor;
 		moonTargetColor = moonActiveColor;
+
+		dayOrNight = DayNight::CelestialNight;
 	}
 
 	time = 0;
 	sunStartColor = sunDirLight->GetLightColor();
 	moonStartColor = moonDirLight->GetLightColor();
-
-	/*if (dayNight == 0) {
-		activeCelestial = sun;
-	}
-	else {
-		activeCelestial = moon;
-	}
-	for(AActor* celestial : celestialsArray) {
-		targetRot.Yaw = dayRot.Yaw;
-		startRot = center->GetActorRotation();
-
-		time = 0;
-		activeTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
-		inactiveTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
-
-		activeTargetIntensity = activeCelestial.activeIntensity;
-		inactiveTargetIntensity = activeCelestial.inactiveIntensity;*/
+	bMoveCelestials = true;
 
 }
 
-void USunMoonComponent::MoveCelestials(float DeltaTime) {
-	//InterpConstant
-	center->SetActorRotation(FMath::RInterpConstantTo(center->GetActorRotation(), targetRot, DeltaTime, 180 / duration));
+void USunMoonComponent::MoveCelestials(float DeltaTime, bool move) {
+	
+	if (move) {
+		if (dayOrNight == 0 || dayOrNight == 1) {
+			//InterpConstant
+			center->SetActorRotation(FMath::RInterpConstantTo(center->GetActorRotation(), targetRot, DeltaTime, 180 / duration));
 
-	sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
-	moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
-		
-	sunDirLight->SetIntensity(FMath::FInterpConstantTo(sunDirLight->Intensity, sunTargetIntensity, DeltaTime, (sunActiveIntensity + sunInactiveIntensity)  / duration));
-	moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + moonInactiveIntensity)  / duration));
+			sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
+			moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
 
-	//Lerp
-	if (colorCurve != nullptr) {
-		if (duration > time) {
-			sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, colorCurve->GetFloatValue(time / duration)));
-			moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, colorCurve->GetFloatValue(time / duration)));
-			time += DeltaTime;
-		}
-	}
-	else {
-		if (duration > time) {
-			sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, time / duration));
-			moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, time / duration));
-			time += DeltaTime;
+			sunDirLight->SetIntensity(FMath::FInterpConstantTo(sunDirLight->Intensity, sunTargetIntensity, DeltaTime, (sunActiveIntensity + sunInactiveIntensity) / duration));
+			moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + moonInactiveIntensity) / duration));
+
+			//Lerp
+			if (colorCurve != nullptr) {
+				if (duration > time) {
+					sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, colorCurve->GetFloatValue(time / duration)));
+					moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, colorCurve->GetFloatValue(time / duration)));
+					time += DeltaTime;
+				}
+			}
+			else {
+				if (duration > time) {
+					sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, time / duration));
+					moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, time / duration));
+					time += DeltaTime;
+				}
+			}
+			move = false;
 		}
 	}
 }

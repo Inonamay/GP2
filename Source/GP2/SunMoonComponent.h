@@ -16,8 +16,8 @@
 
 UENUM()
 enum DayNight {
-	TestDay UMETA(DisplayName = "Day State"),
-	TestNight UMETA(DisplayName = "Day State"),
+	CelestialDay UMETA(DisplayName = "Day State"),
+	CelestialNight UMETA(DisplayName = "Day State"),
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -40,23 +40,22 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Duration")
 		float duration = 2;
 
-	UPROPERTY(EditAnywhere, Category = "Light")
-		float sunActiveIntensity = 10;
+		
 	UPROPERTY(EditAnywhere, Category = "Light")
 		float sunInactiveIntensity = 0;
-	UPROPERTY(EditAnywhere, Category = "Light")
-		float moonActiveIntensity = 10;
+	float sunActiveIntensity;
+		
 	UPROPERTY(EditAnywhere, Category = "Light")
 		float moonInactiveIntensity = 0;
+	float moonActiveIntensity;
 
+		
 	UPROPERTY(EditAnywhere, Category = "Color")
-		FLinearColor sunActiveColor;
+		FLinearColor sunInactiveColor = sunActiveColor;
+	FLinearColor sunActiveColor;
 	UPROPERTY(EditAnywhere, Category = "Color")
-		FLinearColor sunInactiveColor;
-	UPROPERTY(EditAnywhere, Category = "Color")
-		FLinearColor moonActiveColor;
-	UPROPERTY(EditAnywhere, Category = "Color")
-		FLinearColor moonInactiveColor;
+		FLinearColor moonInactiveColor = moonActiveColor;
+	FLinearColor moonActiveColor;
 	UPROPERTY(EditAnywhere, Category = "Color")
 		UCurveFloat* colorCurve;
 
@@ -69,6 +68,7 @@ public:
 	AActor* moon;
 
 private:
+
 	TEnumAsByte<DayNight> dayOrNight;
 	TArray<AActor*> celestialsArray;
 	TArray<AActor*> lightArray;
@@ -113,6 +113,8 @@ private:
 	FVector vActiveHeight;
 	FVector vInactiveHeight;
 
+	bool bMoveCelestials = false;
+
 public:	
 	USunMoonComponent();
 
@@ -125,6 +127,6 @@ public:
 
 	UFUNCTION()
 	void ToggleCelestials(int dayNight);
-	void MoveCelestials(float DeltaTime);
+	void MoveCelestials(float DeltaTime, bool move);
 
 };
