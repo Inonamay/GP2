@@ -14,54 +14,87 @@ AMusicManager::AMusicManager()
 }
 
 
-void AMusicManager::AddLayer()
+void AMusicManager::SwitchTrack(int track)
 {
-	addLayer++;
+	if (activeSounds.Num() == 0) {
+		return;
+	}
+	if (tracks.Num() == 0) {
+		return;
+	}
+	if (activeTrack) {
+		activeTrack->SetVolumeMultiplier(0);
+	}
+	track = FMath::Clamp(track, 0, activeSounds.Num() - 1);
+	activeTrack = activeSounds[track];
+	activeTrack->SetVolumeMultiplier(1);
+	
 }
 
-void AMusicManager::PlayAll()
+void AMusicManager::AddLayer()
 {
-	int a = activeSounds.Num();
-	for (size_t i = 0; i < a; i++)
+	layerVolume = 1;
+	layerTrack->SetVolumeMultiplier(layerVolume);
+}
+
+void AMusicManager::RemoveLayer()
+{
+	layerVolume = 0;
+	layerTrack->SetVolumeMultiplier(layerVolume);
+}
+
+void AMusicManager::StartMusic()
+{
+	int trackNumber = tracks.Num();
+	if (trackNumber == 0) {
+		return;
+	}
+	if (activeSounds.Num() == 0) {
+		for (size_t i = 0; i < trackNumber; i++)
+		{
+			activeSounds.Add(UGameplayStatics::SpawnSound2D(this, tracks[i], 0, 1, 0, nullptr, false, false));
+		}
+		layerTrack = UGameplayStatics::SpawnSound2D(this, layer, 0, 1, 0, nullptr, false, false);
+	}
+	else {
+		if (activeTrack) {
+			activeTrack->SetVolumeMultiplier(0);
+		}
+		for (size_t i = 0; i < activeSounds.Num(); i++)
+		{
+			activeSounds[i]->Play();
+			activeSounds[i]->SetVolumeMultiplier(0);
+
+		}
+		if (layerTrack) {
+			layerTrack->Play();
+		}
+	}
+	activeTrack = activeSounds[0];
+	activeTrack->SetVolumeMultiplier(1);
+	
+}
+
+void AMusicManager::StopMusic()
+{
+	if (activeTrack) {
+		activeTrack->SetVolumeMultiplier(0);
+	}
+	for (size_t i = 0; i < activeSounds.Num(); i++)
 	{
 		activeSounds[i]->Stop();
 	}
-	activeSounds.Empty();
-	a = musicLayers.Num();
-	for (size_t i = 0; i < a; i++)
-	{
-		activeSounds.Add(UGameplayStatics::SpawnSound2D(this, musicLayers[i], 1, 1, time, nullptr, false, false));
-	}
-}
-
-void AMusicManager::PlayMultiple(int amount)
-{
-	addLayer += amount;
-}
-
-void AMusicManager::UpdateTiming()
-{
-	time += 0.1f;
-	if (addLayer > 0) {
-		if (layersActive < musicLayers.Num()) {
-			activeSounds.Add(UGameplayStatics::SpawnSound2D(this, musicLayers[layersActive], 1, 1, time, nullptr, false, false));
-			activeSounds[layersActive]->Stop();
-			activeSounds[layersActive]->FadeIn(1, 1, time);
-			layersActive++;
-		}
-		addLayer--;
+	if (layerTrack) {
+		layerTrack->Stop();
 	}
 	
 }
+
 
 // Called when the game starts
 void AMusicManager::BeginPlay()
 {
 	Super::BeginPlay();
-	if (musicLayers.Num() > 0) {
-		GetWorldTimerManager().SetTimer(timeLine, this, &AMusicManager::UpdateTiming, 0.1f, true);
-	}
-	// ...
 	
 }
 
