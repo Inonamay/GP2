@@ -16,6 +16,9 @@ AMusicManager::AMusicManager()
 
 void AMusicManager::SwitchTrack(int track)
 {
+	if (activeSounds.Num() == 0) {
+		return;
+	}
 	if (tracks.Num() == 0) {
 		return;
 	}
