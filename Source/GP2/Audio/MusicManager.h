@@ -17,17 +17,23 @@ public:
 	// Sets default values for this component's properties
 	AMusicManager();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
-	TArray<USoundCue*> musicLayers;
+	USoundCue* layer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
+		TArray<USoundCue*> tracks;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Music")
+		float fadeTime = 1;
+	UFUNCTION(Blueprintcallable)
+		void SwitchTrack(int track);
 	UFUNCTION(Blueprintcallable)
 		void AddLayer();
 	UFUNCTION(Blueprintcallable)
-		void PlayAll();
-	UFUNCTION(Blueprintcallable)
-		void PlayMultiple(int amount);
+		void RemoveLayer();
 protected:
-	// Called when the game starts
-	void UpdateTiming();
+	float layerVolume = 0;
 	TArray<UAudioComponent*> activeSounds;
+	UAudioComponent* activeTrack;
+	UAudioComponent* layerTrack;
+	UAudioComponent* trackToDestroy;
 	virtual void BeginPlay() override;
 	float time;
 	int layersActive = 0;
