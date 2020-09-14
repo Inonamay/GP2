@@ -52,7 +52,7 @@ void AMusicManager::StartMusic()
 	if (activeSounds.Num() == 0) {
 		for (size_t i = 0; i < trackNumber; i++)
 		{
-			activeSounds.Add(UGameplayStatics::SpawnSound2D(this, tracks[trackNumber], 0, 1, 0, nullptr, false, false));
+			activeSounds.Add(UGameplayStatics::SpawnSound2D(this, tracks[i], 0, 1, 0, nullptr, false, false));
 		}
 		layerTrack = UGameplayStatics::SpawnSound2D(this, layer, 0, 1, 0, nullptr, false, false);
 	}
