@@ -28,6 +28,10 @@ public:
 		void AddLayer();
 	UFUNCTION(Blueprintcallable)
 		void RemoveLayer();
+	UFUNCTION(Blueprintcallable)
+		void StartMusic();
+	UFUNCTION(Blueprintcallable)
+		void StopMusic();
 protected:
 	float layerVolume = 0;
 	TArray<UAudioComponent*> activeSounds;
