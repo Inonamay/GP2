@@ -33,7 +33,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Positioning")
 		float distanceFromCenter = 500;
 	UPROPERTY(EditAnywhere, Category = "Positioning")
-		float activeHeight = 100;
+		float sunActiveHeight = 100;
+	UPROPERTY(EditAnywhere, Category = "Positioning")
+		float moonActiveHeight = 100;
 	UPROPERTY(EditAnywhere, Category = "Positioning")
 		float inactiveHeight = -100;
 	UPROPERTY(EditAnywhere, Category = "Positioning")
@@ -120,7 +122,8 @@ private:
 
 
 
-	FVector vActiveHeight;
+	FVector vSunActiveHeight;
+	FVector vMoonActiveHeight;
 	FVector vInactiveHeight;
 
 	bool bMoveCelestials = false;
