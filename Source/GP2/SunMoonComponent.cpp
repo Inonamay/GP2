@@ -11,7 +11,8 @@ USunMoonComponent::USunMoonComponent() {
 void USunMoonComponent::BeginPlay() {
 	Super::BeginPlay();
 
-	vActiveHeight.Z = activeHeight;
+	vSunActiveHeight.Z = sunActiveHeight;
+	vMoonActiveHeight.Z = moonActiveHeight;
 	vInactiveHeight.Z = inactiveHeight;
 
 	dayRot = FRotator(0, dayAngle, 0);
@@ -48,10 +49,10 @@ void USunMoonComponent::BeginPlay() {
 		moonDirLight = moonLightActor->FindComponentByClass<UDirectionalLightComponent>();
 	}
 
-	sunTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
+	sunTargetLocation.Z = center->GetActorLocation().Z + vSunActiveHeight.Z;
 	moonTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
 
-	sun->SetActorLocation(FVector(center->GetActorLocation().X + distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z + vActiveHeight.Z));
+	sun->SetActorLocation(FVector(center->GetActorLocation().X + distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z + vSunActiveHeight.Z));
 	moon->SetActorLocation(FVector(center->GetActorLocation().X - distanceFromCenter, center->GetActorLocation().Y, center->GetActorLocation().Z + vInactiveHeight.Z));
 
 	sun->SetActorRotation(UKismetMathLibrary::FindLookAtRotation(sun->GetActorLocation(), center->GetActorLocation()));
@@ -78,7 +79,7 @@ void USunMoonComponent::ToggleCelestials(int dayNight) {
 	if (dayNight == 0) {
 		targetRot.Yaw = dayRot.Yaw;
 
-		sunTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
+		sunTargetLocation.Z = center->GetActorLocation().Z + vSunActiveHeight.Z;
 		moonTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
 
 		sunTargetIntensity = sunActiveIntensity;
@@ -92,7 +93,7 @@ void USunMoonComponent::ToggleCelestials(int dayNight) {
 		targetRot.Yaw = nightRot.Yaw;
 
 		sunTargetLocation.Z = center->GetActorLocation().Z + vInactiveHeight.Z;
-		moonTargetLocation.Z = center->GetActorLocation().Z + vActiveHeight.Z;
+		moonTargetLocation.Z = center->GetActorLocation().Z + vMoonActiveHeight.Z;
 
 		sunTargetIntensity = sunInactiveIntensity;
 		moonTargetIntensity = moonActiveIntensity;
@@ -124,8 +125,8 @@ void USunMoonComponent::MoveCelestials(float DeltaTime, bool move) {
 					moon->SetActorLocation(FMath::Lerp(FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonStartLocation.Z), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), heightCurve->GetFloatValue(time / duration)));
 				}
 				else {
-					sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
-					moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
+					sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (sunActiveHeight + abs(inactiveHeight)) / duration));
+					moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (moonActiveHeight + abs(inactiveHeight)) / duration));
 				}
 
 				// Intensity interpolation
@@ -137,6 +138,7 @@ void USunMoonComponent::MoveCelestials(float DeltaTime, bool move) {
 					sunDirLight->SetIntensity(FMath::FInterpConstantTo(sunDirLight->Intensity, sunTargetIntensity, DeltaTime, (sunActiveIntensity + abs(sunInactiveIntensity)) / duration));
 					moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + abs(moonInactiveIntensity)) / duration));
 				}
+
 				// Color interpolation
 				if (colorCurve != nullptr) {
 					sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, colorCurve->GetFloatValue(time / duration)));
