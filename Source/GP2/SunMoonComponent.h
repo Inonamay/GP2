@@ -36,6 +36,8 @@ public:
 		float activeHeight = 100;
 	UPROPERTY(EditAnywhere, Category = "Positioning")
 		float inactiveHeight = -100;
+	UPROPERTY(EditAnywhere, Category = "Positioning")
+		UCurveFloat* heightCurve;
 
 	UPROPERTY(EditAnywhere, Category = "Duration")
 		float duration = 2;
@@ -44,11 +46,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Light")
 		float sunInactiveIntensity = 0;
 	float sunActiveIntensity;
-		
 	UPROPERTY(EditAnywhere, Category = "Light")
 		float moonInactiveIntensity = 0;
 	float moonActiveIntensity;
-
+	UPROPERTY(EditAnywhere, Category = "Light")
+		UCurveFloat* intensityCurve;
 		
 	UPROPERTY(EditAnywhere, Category = "Color")
 		FLinearColor sunInactiveColor = sunActiveColor;
@@ -58,6 +60,8 @@ public:
 	FLinearColor moonActiveColor;
 	UPROPERTY(EditAnywhere, Category = "Color")
 		UCurveFloat* colorCurve;
+	
+	
 
 	bool toggle;
 
@@ -86,6 +90,8 @@ private:
 	float moonCurrentIntensity;
 	float sunTargetIntensity;
 	float moonTargetIntensity;
+	float sunStartIntensity;
+	float moonStartIntensity;
 
 	float dayAngle = 0;
 	float nightAngle = 180;
@@ -109,6 +115,10 @@ private:
 
 	FVector activeTargetLocation;
 	FVector inactiveTargetLocation;
+	FVector sunStartLocation;
+	FVector moonStartLocation;
+
+
 
 	FVector vActiveHeight;
 	FVector vInactiveHeight;
