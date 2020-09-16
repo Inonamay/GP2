@@ -103,39 +103,50 @@ void USunMoonComponent::ToggleCelestials(int dayNight) {
 	}
 
 	time = 0;
+	sunStartLocation = sun->GetActorLocation();
+	moonStartLocation = moon->GetActorLocation();
 	sunStartColor = sunDirLight->GetLightColor();
 	moonStartColor = moonDirLight->GetLightColor();
+	sunStartIntensity = sunDirLight->Intensity;
+	moonStartIntensity = moonDirLight->Intensity;
 	bMoveCelestials = true;
-
 }
 
 void USunMoonComponent::MoveCelestials(float DeltaTime, bool move) {
 	
 	if (move) {
 		if (dayOrNight == 0 || dayOrNight == 1) {
-			//InterpConstant
-			center->SetActorRotation(FMath::RInterpConstantTo(center->GetActorRotation(), targetRot, DeltaTime, 180 / duration));
+			if (duration > time) {
+				center->SetActorRotation(FMath::RInterpConstantTo(center->GetActorRotation(), targetRot, DeltaTime, 180 / duration));
+				// Height interpolation
+				if (heightCurve != nullptr) {
+					sun->SetActorLocation(FMath::Lerp(FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunStartLocation.Z), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), heightCurve->GetFloatValue(time / duration)));
+					moon->SetActorLocation(FMath::Lerp(FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonStartLocation.Z), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), heightCurve->GetFloatValue(time / duration)));
+				}
+				else {
+					sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
+					moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
+				}
 
-			sun->SetActorLocation(FMath::VInterpConstantTo(sun->GetActorLocation(), FVector(sun->GetActorLocation().X, sun->GetActorLocation().Y, sunTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
-			moon->SetActorLocation(FMath::VInterpConstantTo(moon->GetActorLocation(), FVector(moon->GetActorLocation().X, moon->GetActorLocation().Y, moonTargetLocation.Z), DeltaTime, (activeHeight + abs(inactiveHeight)) / duration));
-
-			sunDirLight->SetIntensity(FMath::FInterpConstantTo(sunDirLight->Intensity, sunTargetIntensity, DeltaTime, (sunActiveIntensity + sunInactiveIntensity) / duration));
-			moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + moonInactiveIntensity) / duration));
-
-			//Lerp
-			if (colorCurve != nullptr) {
-				if (duration > time) {
+				// Intensity interpolation
+				if (intensityCurve != nullptr) {
+					sunDirLight->SetIntensity(FMath::Lerp(sunStartIntensity, sunTargetIntensity, intensityCurve->GetFloatValue(time / duration)));
+					moonDirLight->SetIntensity(FMath::Lerp(moonStartIntensity, moonTargetIntensity, intensityCurve->GetFloatValue(time / duration)));
+				}
+				else {
+					sunDirLight->SetIntensity(FMath::FInterpConstantTo(sunDirLight->Intensity, sunTargetIntensity, DeltaTime, (sunActiveIntensity + abs(sunInactiveIntensity)) / duration));
+					moonDirLight->SetIntensity(FMath::FInterpConstantTo(moonDirLight->Intensity, moonTargetIntensity, DeltaTime, (moonActiveIntensity + abs(moonInactiveIntensity)) / duration));
+				}
+				// Color interpolation
+				if (colorCurve != nullptr) {
 					sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, colorCurve->GetFloatValue(time / duration)));
 					moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, colorCurve->GetFloatValue(time / duration)));
-					time += DeltaTime;
 				}
-			}
-			else {
-				if (duration > time) {
+				else {
 					sunDirLight->SetLightColor(FMath::Lerp(sunStartColor, sunTargetColor, time / duration));
 					moonDirLight->SetLightColor(FMath::Lerp(moonStartColor, moonTargetColor, time / duration));
-					time += DeltaTime;
 				}
+				time += DeltaTime;
 			}
 			move = false;
 		}
